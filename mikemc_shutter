@@ -1,8 +1,18 @@
 blueprint:
-  name: Shutter Control with Buttons and Scheduled Automation
-  description: Control shutters with a button action entity. Pressing the same button again stops the shutter. The shutter also goes up at 17:00 and down at 09:00 automatically.
+  name: Shutter Control with Specific Buttons and Scheduled Automation
+  description: Control shutters with specific buttons of a Hue Dimmer Switch. Pressing the same button again stops the shutter. The shutter also goes up at 17:00 and down at 09:00 automatically.
   domain: automation
   input:
+    button_up:
+      name: Up Button Action
+      description: The action triggered by the up button (e.g., button_1_press)
+      selector:
+        text:
+    button_down:
+      name: Down Button Action
+      description: The action triggered by the down button (e.g., button_2_press)
+      selector:
+        text:
     button_action:
       name: Button Action Entity
       description: The action entity from the button (e.g., Hue Dimmer Switch)
@@ -27,9 +37,8 @@ trigger:
 action:
   - choose:
       - conditions:
-          - condition: state
-            entity_id: !input button_action
-            state: 'button_1_press'
+          - condition: template
+            value_template: "{{ trigger.to_state.state == (input.button_up) }}"
         sequence:
           - choose:
               - conditions:
@@ -40,24 +49,13 @@ action:
                   - service: cover.stop_cover
                     target:
                       entity_id: !input shutter
-              - conditions:
-                  - condition: state
-                    entity_id: !input shutter
-                    state: 'closed'
-                sequence:
+              default:
                   - service: cover.open_cover
                     target:
                       entity_id: !input shutter
-              - conditions: []
-                sequence:
-                  - service: cover.open_cover
-                    target:
-                      entity_id: !input shutter
-
       - conditions:
-          - condition: state
-            entity_id: !input button_action
-            state: 'button_2_press'
+          - condition: template
+            value_template: "{{ trigger.to_state.state == (input.button_down) }}"
         sequence:
           - choose:
               - conditions:
@@ -68,31 +66,20 @@ action:
                   - service: cover.stop_cover
                     target:
                       entity_id: !input shutter
-              - conditions:
-                  - condition: state
-                    entity_id: !input shutter
-                    state: 'open'
-                sequence:
+              default:
                   - service: cover.close_cover
                     target:
                       entity_id: !input shutter
-              - conditions: []
-                sequence:
-                  - service: cover.close_cover
-                    target:
-                      entity_id: !input shutter
-
       - conditions:
           - condition: time
-            after: '17:00:00'
+            at: '17:00:00'
         sequence:
           - service: cover.open_cover
             target:
               entity_id: !input shutter
-
       - conditions:
           - condition: time
-            after: '09:00:00'
+            at: '09:00:00'
         sequence:
           - service: cover.close_cover
             target:
