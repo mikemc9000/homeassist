@@ -1,4 +1,4 @@
-# testi3
+#testi4
 blueprint:
   name: Shutter Control with Buttons and Scheduled Automation
   description: Control shutters with a button action entity. Pressing the same button again stops the shutter. The shutter also goes up at 17:00 and down at 09:00 automatically.
@@ -83,14 +83,14 @@ action:
                       entity_id: !input shutter
       - conditions:
           - condition: time
-            at: '17:00:00'
+            after: '17:00:00'
         sequence:
           - service: cover.open_cover
             target:
               entity_id: !input shutter
       - conditions:
           - condition: time
-            at: '09:00:00'
+            after: '09:00:00'
         sequence:
           - service: cover.close_cover
             target:
