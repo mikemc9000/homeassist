@@ -1,3 +1,4 @@
+# testi
 blueprint:
   name: Shutter Control with Buttons and Scheduled Automation
   description: Control shutters with a button action entity. Pressing the same button again stops the shutter. The shutter also goes up at 17:00 and down at 09:00 automatically.
