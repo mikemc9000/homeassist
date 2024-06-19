@@ -27,9 +27,8 @@ trigger:
 action:
   - choose:
       - conditions:
-          - condition: state
-            entity_id: !input button_action
-            state: 'button_1_press'
+          - condition: template
+            value_template: "{{ trigger.platform == 'state' and trigger.to_state.state == 'button_1_press' }}"
         sequence:
           - choose:
               - conditions:
@@ -45,9 +44,8 @@ action:
                     target:
                       entity_id: !input shutter
       - conditions:
-          - condition: state
-            entity_id: !input button_action
-            state: 'button_2_press'
+          - condition: template
+            value_template: "{{ trigger.platform == 'state' and trigger.to_state.state == 'button_2_press' }}"
         sequence:
           - choose:
               - conditions:
@@ -63,15 +61,15 @@ action:
                     target:
                       entity_id: !input shutter
       - conditions:
-          - condition: time
-            at: '17:00:00'
+          - condition: template
+            value_template: "{{ trigger.platform == 'time' and trigger.now().hour == 17 and trigger.now().minute == 0 }}"
         sequence:
           - service: cover.open_cover
             target:
               entity_id: !input shutter
       - conditions:
-          - condition: time
-            at: '09:00:00'
+          - condition: template
+            value_template: "{{ trigger.platform == 'time' and trigger.now().hour == 9 and trigger.now().minute == 0 }}"
         sequence:
           - service: cover.close_cover
             target:
