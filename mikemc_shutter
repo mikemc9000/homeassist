@@ -1,0 +1,86 @@
+blueprint:
+  name: Shutter Control with Buttons and Scheduled Automation
+  description: Control shutters with two buttons (up and down). Pressing the same button again stops the shutter. The shutter also goes up at 17:00 and down at 09:00 automatically.
+  domain: automation
+  input:
+    button_up:
+      name: Up Button
+      description: The button to move the shutter up
+      selector:
+        entity:
+          domain: button
+    button_down:
+      name: Down Button
+      description: The button to move the shutter down
+      selector:
+        entity:
+          domain: button
+    shutter:
+      name: Shutter
+      description: The shutter to control
+      selector:
+        entity:
+          domain: cover
+
+trigger:
+  - platform: state
+    entity_id: !input button_up
+    to: 'on'
+  - platform: state
+    entity_id: !input button_down
+    to: 'on'
+  - platform: time
+    at: '17:00:00'
+  - platform: time
+    at: '09:00:00'
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: button_up_triggered
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input shutter
+                    state: 'opening'
+                sequence:
+                  - service: cover.stop_cover
+                    target:
+                      entity_id: !input shutter
+              - default:
+                  - service: cover.open_cover
+                    target:
+                      entity_id: !input shutter
+      - conditions:
+          - condition: trigger
+            id: button_down_triggered
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input shutter
+                    state: 'closing'
+                sequence:
+                  - service: cover.stop_cover
+                    target:
+                      entity_id: !input shutter
+              - default:
+                  - service: cover.close_cover
+                    target:
+                      entity_id: !input shutter
+      - conditions:
+          - condition: time
+            at: '17:00:00'
+        sequence:
+          - service: cover.open_cover
+            target:
+              entity_id: !input shutter
+      - conditions:
+          - condition: time
+            at: '09:00:00'
+        sequence:
+          - service: cover.close_cover
+            target:
+              entity_id: !input shutter
