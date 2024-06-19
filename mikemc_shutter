@@ -50,9 +50,9 @@ action:
                     target:
                       entity_id: !input shutter
               default:
-                  - service: cover.open_cover
-                    target:
-                      entity_id: !input shutter
+                - service: cover.open_cover
+                  target:
+                    entity_id: !input shutter
       - conditions:
           - condition: template
             value_template: "{{ trigger.to_state.state == (input.button_down) }}"
@@ -67,9 +67,10 @@ action:
                     target:
                       entity_id: !input shutter
               default:
-                  - service: cover.close_cover
-                    target:
-                      entity_id: !input shutter
+                - service: cover.close_cover
+                  target:
+                    entity_id: !input shutter
+  - choose:
       - conditions:
           - condition: time
             at: '17:00:00'
