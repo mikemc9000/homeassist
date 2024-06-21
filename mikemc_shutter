@@ -1,87 +1,115 @@
 blueprint:
-  name: Shutter Control with Specific Buttons and Scheduled Automation
-  description: Control shutters with specific buttons of a Hue Dimmer Switch. Pressing the same button again stops the shutter. The shutter also goes up at 17:00 and down at 09:00 automatically.
+  name: Rollo Steuerung mit zwei Tasten
+  description: Steuere ein Rollo mit zwei Tasten (rauf und runter), das bei erneutem Drücken anhält.
   domain: automation
   input:
-    button_up:
-      name: Up Button Action
-      description: The action triggered by the up button (e.g., button_1_press)
-      selector:
-        text:
-    button_down:
-      name: Down Button Action
-      description: The action triggered by the down button (e.g., button_2_press)
-      selector:
-        text:
-    button_action:
-      name: Button Action Entity
-      description: The action entity from the button (e.g., Hue Dimmer Switch)
-      selector:
-        entity:
-          domain: sensor
-    shutter:
-      name: Shutter
-      description: The shutter to control
+    rollo:
+      name: Rollo
+      description: Die zu steuernde Rollo
       selector:
         entity:
           domain: cover
+    button_up:
+      name: Taste Rauf
+      description: Die Taste, die das Rollo hochfährt
+      selector:
+        entity:
+          domain: button
+    button_down:
+      name: Taste Runter
+      description: Die Taste, die das Rollo runterfährt
+      selector:
+        entity:
+          domain: button
+
+variables:
+  rollo: !input rollo
+  button_up: !input button_up
+  button_down: !input button_down
 
 trigger:
   - platform: state
-    entity_id: !input button_action
-  - platform: time
-    at: '17:00:00'
-  - platform: time
-    at: '09:00:00'
+    entity_id: !input button_up
+    to: 'on'
+  - platform: state
+    entity_id: !input button_down
+    to: 'on'
+
+condition: []
 
 action:
   - choose:
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.to_state.state == (input.button_up) }}"
+          - condition: trigger
+            id: 'button_up'
         sequence:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: !input shutter
+                    entity_id: !input rollo
                     state: 'opening'
                 sequence:
                   - service: cover.stop_cover
                     target:
-                      entity_id: !input shutter
-              default: []
-          - service: cover.open_cover
-            target:
-              entity_id: !input shutter
+                      entity_id: !input rollo
+              - conditions:
+                  - condition: state
+                    entity_id: !input rollo
+                    state: 'closed'
+                sequence:
+                  - service: cover.open_cover
+                    target:
+                      entity_id: !input rollo
+              - conditions:
+                  - condition: state
+                    entity_id: !input rollo
+                    state: 'open'
+                sequence:
+                  - service: cover.stop_cover
+                    target:
+                      entity_id: !input rollo
+              - conditions:
+                  - condition: state
+                    entity_id: !input rollo
+                    state: 'stopped'
+                sequence:
+                  - service: cover.open_cover
+                    target:
+                      entity_id: !input rollo
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.to_state.state == (input.button_down) }}"
+          - condition: trigger
+            id: 'button_down'
         sequence:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: !input shutter
+                    entity_id: !input rollo
                     state: 'closing'
                 sequence:
                   - service: cover.stop_cover
                     target:
-                      entity_id: !input shutter
-              default: []
-          - service: cover.close_cover
-            target:
-              entity_id: !input shutter
-  - choose:
-      - conditions:
-          - condition: time
-            at: '17:00:00'
-        sequence:
-          - service: cover.open_cover
-            target:
-              entity_id: !input shutter
-      - conditions:
-          - condition: time
-            at: '09:00:00'
-        sequence:
-          - service: cover.close_cover
-            target:
-              entity_id: !input shutter
+                      entity_id: !input rollo
+              - conditions:
+                  - condition: state
+                    entity_id: !input rollo
+                    state: 'open'
+                sequence:
+                  - service: cover.close_cover
+                    target:
+                      entity_id: !input rollo
+              - conditions:
+                  - condition: state
+                    entity_id: !input rollo
+                    state: 'closed'
+                sequence:
+                  - service: cover.stop_cover
+                    target:
+                      entity_id: !input rollo
+              - conditions:
+                  - condition: state
+                    entity_id: !input rollo
+                    state: 'stopped'
+                sequence:
+                  - service: cover.close_cover
+                    target:
+                      entity_id: !input rollo
