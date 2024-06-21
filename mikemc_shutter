@@ -9,9 +9,9 @@ blueprint:
       selector:
         entity:
           domain: cover
-    button_up:
-      name: Taste Hoch
-      description: Wähle die Taste, die das Rollo hochfährt
+    button_up_action:
+      name: Taste Hoch Aktion
+      description: Wähle die Aktion, die das Rollo hochfährt
       selector:
         select:
           options:
@@ -21,9 +21,9 @@ blueprint:
             - up_press
             - up_hold
             - up_release
-    button_down:
-      name: Taste Runter
-      description: Wähle die Taste, die das Rollo runterfährt
+    button_down_action:
+      name: Taste Runter Aktion
+      description: Wähle die Aktion, die das Rollo runterfährt
       selector:
         select:
           options:
@@ -43,17 +43,17 @@ blueprint:
 variables:
   rollo: !input rollo
   hue_dimmer: !input hue_dimmer
-  button_up: !input button_up
-  button_down: !input button_down
+  button_up_action: !input button_up_action
+  button_down_action: !input button_down_action
 
 trigger:
   - platform: state
     entity_id: !input hue_dimmer
-    to: !input button_up
+    to: !input button_up_action
     id: 'button_up'
   - platform: state
     entity_id: !input hue_dimmer
-    to: !input button_down
+    to: !input button_down_action
     id: 'button_down'
 
 condition: []
