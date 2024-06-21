@@ -1,6 +1,6 @@
 blueprint:
-  name: Rollo Steuerung mit zwei Tasten
-  description: Steuere ein Rollo mit zwei Tasten (rauf und runter), das bei erneutem Drücken anhält.
+  name: Rollo Steuerung mit Hue Dimmer Switch
+  description: Steuere ein Rollo mit einem Hue Dimmer Switch (hoch und runter), das bei erneutem Drücken anhält.
   domain: automation
   input:
     rollo:
@@ -10,31 +10,50 @@ blueprint:
         entity:
           domain: cover
     button_up:
-      name: Taste Rauf
-      description: Die Taste, die das Rollo hochfährt
+      name: Taste Hoch
+      description: Wähle die Taste, die das Rollo hochfährt
       selector:
-        entity:
-          domain: button
+        select:
+          options:
+            - on-press
+            - on-hold
+            - on-release
+            - up-press
+            - up-hold
+            - up-release
     button_down:
       name: Taste Runter
-      description: Die Taste, die das Rollo runterfährt
+      description: Wähle die Taste, die das Rollo runterfährt
+      selector:
+        select:
+          options:
+            - down-press
+            - down-hold
+            - down-release
+            - off-press
+            - off-hold
+            - off-release
+    hue_dimmer:
+      name: Hue Dimmer Switch
+      description: Der Hue Dimmer Switch, der die Aktionsevents sendet
       selector:
         entity:
-          domain: button
+          domain: sensor
 
 variables:
   rollo: !input rollo
+  hue_dimmer: !input hue_dimmer
   button_up: !input button_up
   button_down: !input button_down
 
 trigger:
   - platform: state
-    entity_id: !input button_up
-    to: 'on'
+    entity_id: !input hue_dimmer
+    to: !input button_up
     id: 'button_up'
   - platform: state
-    entity_id: !input button_down
-    to: 'on'
+    entity_id: !input hue_dimmer
+    to: !input button_down
     id: 'button_down'
 
 condition: []
