@@ -31,9 +31,11 @@ trigger:
   - platform: state
     entity_id: !input button_up
     to: 'on'
+    id: 'button_up'
   - platform: state
     entity_id: !input button_down
     to: 'on'
+    id: 'button_down'
 
 condition: []
 
