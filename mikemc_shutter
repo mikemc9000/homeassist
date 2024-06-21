@@ -66,25 +66,20 @@ action:
         sequence:
           - choose:
               - conditions:
-                  - condition: state
+                  - condition: numeric_state
                     entity_id: !input rollo
-                    state: 'closing'
-                sequence:
-                  - service: cover.stop_cover
-                    target:
-                      entity_id: !input rollo
-              - conditions:
-                  - condition: state
-                    entity_id: !input rollo
-                    state_not: 'open'
+                    attribute: current_position
+                    above: 0
+                    below: 100
                 sequence:
                   - service: cover.open_cover
                     target:
                       entity_id: !input rollo
               - conditions:
-                  - condition: state
+                  - condition: numeric_state
                     entity_id: !input rollo
-                    state: 'open'
+                    attribute: current_position
+                    above: 0
                 sequence:
                   - service: cover.stop_cover
                     target:
@@ -95,25 +90,20 @@ action:
         sequence:
           - choose:
               - conditions:
-                  - condition: state
+                  - condition: numeric_state
                     entity_id: !input rollo
-                    state: 'opening'
-                sequence:
-                  - service: cover.stop_cover
-                    target:
-                      entity_id: !input rollo
-              - conditions:
-                  - condition: state
-                    entity_id: !input rollo
-                    state_not: 'closed'
+                    attribute: current_position
+                    below: 100
+                    above: 0
                 sequence:
                   - service: cover.close_cover
                     target:
                       entity_id: !input rollo
               - conditions:
-                  - condition: state
+                  - condition: numeric_state
                     entity_id: !input rollo
-                    state: 'closed'
+                    attribute: current_position
+                    below: 100
                 sequence:
                   - service: cover.stop_cover
                     target:
