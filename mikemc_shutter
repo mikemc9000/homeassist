@@ -15,24 +15,24 @@ blueprint:
       selector:
         select:
           options:
-            - on-press
-            - on-hold
-            - on-release
-            - up-press
-            - up-hold
-            - up-release
+            - on_press
+            - on_hold
+            - on_release
+            - up_press
+            - up_hold
+            - up_release
     button_down:
       name: Taste Runter
       description: Wähle die Taste, die das Rollo runterfährt
       selector:
         select:
           options:
-            - down-press
-            - down-hold
-            - down-release
-            - off-press
-            - off-hold
-            - off-release
+            - down_press
+            - down_hold
+            - down_release
+            - off_press
+            - off_hold
+            - off_release
     hue_dimmer:
       name: Hue Dimmer Switch
       description: Der Hue Dimmer Switch, der die Aktionsevents sendet
