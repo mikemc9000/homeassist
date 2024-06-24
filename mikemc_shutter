@@ -79,9 +79,11 @@ action:
                     target:
                       entity_id: !input rollo
               - conditions:
-                  - condition: state
-                    entity_id: !input rollo
-                    state_not: 'opening'
+                  - condition: not
+                    conditions:
+                      - condition: state
+                        entity_id: !input rollo
+                        state: 'opening'
                 sequence:
                   - service: cover.open_cover
                     target:
@@ -105,9 +107,11 @@ action:
                     target:
                       entity_id: !input rollo
               - conditions:
-                  - condition: state
-                    entity_id: !input rollo
-                    state_not: 'closing'
+                  - condition: not
+                    conditions:
+                      - condition: state
+                        entity_id: !input rollo
+                        state: 'closing'
                 sequence:
                   - service: cover.close_cover
                     target:
