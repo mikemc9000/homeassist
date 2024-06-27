@@ -76,7 +76,7 @@ blueprint:
           single: true
   variables:
     cover_e: !input cover_entity
-    var_e: '{{ ''var.'' + cover_e.split(''.'')[1] }}'
+    var_e: '{{ "var." + cover_e.split(".")[1] }}'  # Adjusted quoting and splitting
     protection_begin: !input sun_position_start
     protection_end: !input sun_position_end
     elevation_begin: !input sun_elevation_start
