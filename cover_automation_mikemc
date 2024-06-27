@@ -109,7 +109,7 @@ action:
     sequence:
       - data_template:
           entity_id: '{{ cover_e }}'
-      service: cover.close_cover
+          service: cover.close_cover
     - delay:
         seconds: !input close_time
     - data_template:
@@ -141,3 +141,4 @@ action:
         entity_id: '{{ var_e }}'
         value: 0
       service: var.set
+
