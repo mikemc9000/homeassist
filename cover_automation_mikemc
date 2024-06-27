@@ -1,19 +1,19 @@
 blueprint:
-  name: sun_protection_metno
-  description: Close cover when sun is shining and open when it stops based on met.no weather data.
+  name: sun protection
+  description: close cover when sun is shining and open when stops
   domain: automation
+  source_url: https://gist.github.com/mougeat/bec9f93c723c8e7d1a9c64c2592fa471
   input:
     cover_entity:
-      name: Cover Entity
-      description: The entity ID of the cover to manage.
+      name: cover
       selector:
         entity:
           domain:
             - cover
-          single: true
+          multiple: false
     sun_position_start:
-      name: Sun Azimuth Position Start
-      description: Sun azimuth. When the sun is below this value, the cover could be triggered.
+      name: sun azimuth position start
+      description: Sun azimuth. when sun is below this value, shutter could be triggered
       default: 89
       selector:
         number:
@@ -23,8 +23,8 @@ blueprint:
           step: 1.0
           mode: slider
     sun_position_end:
-      name: Sun Azimuth Position End
-      description: Sun azimuth. When the sun is over this value, the cover could be triggered.
+      name: sun azimuth position end
+      description: Sun azimuth. when sun is over this value, shutter could be triggered
       default: 200
       selector:
         number:
@@ -34,8 +34,8 @@ blueprint:
           step: 1.0
           mode: slider
     sun_elevation_start:
-      name: Sun Elevation to Start
-      description: Sun elevation. When the sun is over this value, the cover could be triggered.
+      name: sun elevation to start
+      description: Sun elevation. when sun is over this value, shutter could be triggered
       default: 32
       selector:
         number:
@@ -44,9 +44,16 @@ blueprint:
           unit_of_measurement: °
           step: 1.0
           mode: slider
+    weather:
+      name: Weather service
+      selector:
+        entity:
+          domain:
+            - met_no
+          multiple: false
     outdoor_temp:
-      name: Outdoor Temperature
-      description: Temperature above which the shutters will close.
+      name: Outdoor temperature
+      description: Temperature above which the shutters will close
       default: 16
       selector:
         number:
@@ -56,8 +63,8 @@ blueprint:
           step: 1.0
           mode: slider
     close_time:
-      name: Closing Time
-      description: Duration the shutter closes (max 60s).
+      name: Closing time
+      description: Duration the shutter closes (max 60s)
       default: 10
       selector:
         number:
@@ -66,70 +73,71 @@ blueprint:
           unit_of_measurement: s
           step: 1.0
           mode: slider
-    weather_service:
-      name: Weather Service
-      description: Weather service providing current conditions.
-      selector:
-        entity:
-          domain:
-            - weather
-          single: true
-  variables:
-    cover_e: !input cover_entity
-    var_e: '{{ "var." + cover_e.split(".")[1] }}'  # Adjusted quoting and splitting
-    protection_begin: !input sun_position_start
-    protection_end: !input sun_position_end
-    elevation_begin: !input sun_elevation_start
-    outdoor_temp: !input outdoor_temp
-    weather_service: !input weather_service
-  mode: parallel
-  trigger:
-    - platform: time_pattern
-      minutes: '/5'
-  condition:
-    - condition: sun
-      before: sunset
-      after: sunrise
-  action:
-    - choose:
-        - conditions:
-            - condition: template
-              value_template: >
-                {{ is_state('input_boolean.cover_manage_cover_with_sun', 'on') and
-                   state_attr(weather_service, 'temperature') > outdoor_temp and
-                   state_attr('sun.sun', 'azimuth') > protection_begin and
-                   state_attr('sun.sun', 'azimuth') < protection_end and
-                   state_attr('sun.sun', 'elevation') > elevation_begin }}
-          sequence:
-            - service: cover.close_cover
-              target:
-                entity_id: '{{ cover_e }}'
-            - delay: "{{ close_time }}"
-            - service: cover.stop_cover
-              target:
-                entity_id: '{{ cover_e }}'
-            - condition: state
-              entity_id: '{{ cover_e }}'
-              state: 'closed'
-            - service: var.set
-              data:
-                entity_id: '{{ var_e }}'
-                value: 1
-        - conditions:
-            - condition: template
-              value_template: >
-                {{ is_state('input_boolean.cover_manage_cover_with_sun', 'on') and
-                   (state_attr('sun.sun', 'azimuth') < protection_begin or
-                    state_attr('sun.sun', 'azimuth') > protection_end or
-                    state_attr('sun.sun', 'elevation') < elevation_begin) }}
-          sequence:
-            - service: cover.open_cover
-              target:
-                entity_id: '{{ cover_e }}'
-            - condition: state
-              entity_id: '{{ cover_e }}'
-              state: 'open'
-            - service: var.set
-              data:
-                entity_id: '{{ var_e }}'
-                value: 0
+variables:
+  cover_e: !input cover_entity
+  var_e: '{{ ''var.'' + cover_e[6:] }}'
+  protection_begin: !input sun_position_start
+  protection_end: !input sun_position_end
+  elevation_begin: !input sun_elevation_start
+  outdoor_temp: !input outdoor_temp
+  weather_service: !input weather
+mode: parallel
+trigger:
+  - platform: time_pattern
+    minutes: /5
+condition:
+  condition: sun
+  before: sunset
+  after: sunrise
+action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{- is_state(''input_boolean.cover_manage_cover_with_sun'', ''on'') -}}'
+      - condition: or
+        conditions:
+          - condition: template
+            value_template: '{{ states(weather_service).current_weather[0].weather_code == ''1'' }}'  # Sunny code
+          - condition: template
+            value_template: '{{ states(weather_service).current_weather[0].weather_code == ''2'' }}'  # Partly cloudy code
+      - condition: template
+        value_template: '{{ states(var_e) != ''1'' }}'
+      - condition: template
+        value_template: '{{ state_attr(''sun.sun'', ''azimuth'') > protection_begin and state_attr(''sun.sun'', ''azimuth'') < protection_end and state_attr(''sun.sun'', ''elevation'') > elevation_begin }}'
+      - condition: template
+        value_template: '{{ states(weather_service).current_weather[0].temperature > outdoor_temp }}'
+    sequence:
+      - data_template:
+          entity_id: '{{ cover_e }}'
+      service: cover.close_cover
+    - delay:
+        seconds: !input close_time
+    - data_template:
+        entity_id: '{{ cover_e }}'
+      service: cover.stop_cover
+    - condition: template
+      value_template: '{{ states(cover_e) == ''closed'' }}'
+    - data:
+        entity_id: '{{ var_e }}'
+        value: 1
+      service: var.set
+  - conditions:
+    - condition: template
+      value_template: '{{- is_state(''input_boolean.cover_manage_cover_with_sun'',
+        ''on'') -}}'
+    - condition: template
+      value_template: '{{ states(var_e) == ''1'' }}'
+    - condition: template
+      value_template: '{{ (state_attr(''sun.sun'', ''azimuth'') < protection_begin
+        or state_attr(''sun.sun'', ''azimuth'') > protection_end or  state_attr(''sun.sun'',
+        ''elevation'') < elevation_begin) }}'
+    sequence:
+    - data_template:
+        entity_id: '{{ cover_e }}'
+      service: cover.open_cover
+    - condition: template
+      value_template: '{{ states(cover_e) == ''open'' }}'
+    - data:
+        entity_id: '{{ var_e }}'
+        value: 0
+      service: var.set
