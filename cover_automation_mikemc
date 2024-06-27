@@ -109,18 +109,18 @@ action:
     sequence:
       - data_template:
           entity_id: '{{ cover_e }}'
-          service: cover.close_cover
-    - delay:
+        service: cover.close_cover
+      - delay:
         seconds: !input close_time
-    - data_template:
+      - data_template:
         entity_id: '{{ cover_e }}'
-      service: cover.stop_cover
-    - condition: template
-      value_template: '{{ states(cover_e) == ''closed'' }}'
-    - data:
+        service: cover.stop_cover
+      - condition: template
+        value_template: '{{ states(cover_e) == ''closed'' }}'
+      - data:
         entity_id: '{{ var_e }}'
         value: 1
-      service: var.set
+        service: var.set
   - conditions:
     - condition: template
       value_template: '{{- is_state(''input_boolean.cover_manage_cover_with_sun'',
@@ -141,4 +141,3 @@ action:
         entity_id: '{{ var_e }}'
         value: 0
       service: var.set
-
