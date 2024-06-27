@@ -96,13 +96,10 @@ blueprint:
             - condition: template
               value_template: >
                 {{ is_state('input_boolean.cover_manage_cover_with_sun', 'on') and
-                   (states(weather_service).attributes.cloud_coverage | float > 70.0 or
-                    states(weather_service).attributes.cloud_coverage is not defined) and
-                   states(var_e) != '1' and
+                   state_attr(weather_service, 'temperature') > outdoor_temp and
                    state_attr('sun.sun', 'azimuth') > protection_begin and
                    state_attr('sun.sun', 'azimuth') < protection_end and
-                   state_attr('sun.sun', 'elevation') > elevation_begin and
-                   state_attr(weather_service, 'temperature') > outdoor_temp }}
+                   state_attr('sun.sun', 'elevation') > elevation_begin }}
           sequence:
             - service: cover.close_cover
               target:
@@ -122,7 +119,6 @@ blueprint:
             - condition: template
               value_template: >
                 {{ is_state('input_boolean.cover_manage_cover_with_sun', 'on') and
-                   states(var_e) == '1' and
                    (state_attr('sun.sun', 'azimuth') < protection_begin or
                     state_attr('sun.sun', 'azimuth') > protection_end or
                     state_attr('sun.sun', 'elevation') < elevation_begin) }}
