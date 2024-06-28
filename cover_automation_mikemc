@@ -107,7 +107,7 @@ action:
             value_template: "{{ state_attr(weather_service, 'temperature') > outdoor_temp }}"
         sequence:
           - delay:
-              minutes: "{{ range(0, 10 ) | random }}"
+              minutes: "{{ range(0, 1 ) | random }}"
           - data_template:
               entity_id: "{{ cover_e }}"
             service: cover.close_cover
@@ -122,6 +122,9 @@ action:
               entity_id: "{{ var_e }}"
               value: 1
             service: var.set
+          - service: persistent_notification.create
+            data:
+              message: "mikemc Variable var_e: {{ var_e }}"
 
       ##########################################################
       # open cover
