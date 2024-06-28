@@ -102,7 +102,7 @@ action:
             value_template: "{{ state_attr(weather_service, 'temperature') > outdoor_temp }}"
         sequence:
           - delay:
-              minutes: "{{ range(0, 5) | random }}"
+              minutes: "{{ range(0, 20) | random }}"
           - data_template:
               entity_id: "{{ cover_e }}"
             service: cover.close_cover
@@ -136,7 +136,7 @@ action:
             value_template: "{{ state_attr('sun.sun', 'azimuth') < protection_begin or state_attr('sun.sun', 'azimuth') > protection_end or state_attr('sun.sun', 'elevation') < elevation_begin }}"
         sequence:
           - delay:
-              minutes: "{{ range(0, 5) | random }}"
+              minutes: "{{ range(0, 20) | random }}"
           - data_template:
               entity_id: "{{ cover_e }}"
             service: cover.open_cover
