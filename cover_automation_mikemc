@@ -58,10 +58,16 @@ blueprint:
           min: 0
           max: 60
           unit_of_measurement: s
+    cover_state_variable_name:
+      name: Cover state variable name
+      description: Name of the variable to store cover state (e.g., var.cover_bureau)
+      default: var.cover_state
+      selector:
+        text:
 
 variables:
   cover_e: !input cover_entity
-  var_e: "{{ 'var.' + cover_e[6:] }}"
+  var_e: "{{ cover_state_variable_name }}"
   protection_begin: !input sun_position_start
   protection_end: !input sun_position_end
   elevation_begin: !input sun_elevation_start
