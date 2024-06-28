@@ -98,7 +98,7 @@ action:
               - condition: template
                 value_template: "{{ states(weather_service) == 'partlycloudy' }}"
               - condition: template
-                value_template: "{{ states(weather_service) == 'rainy' }}"
+                value_template: "{{ states(weather_service) == 'sunny' }}"
           - condition: template
             value_template: "{{ states(var_e) != '1' }}"
           - condition: template
@@ -107,7 +107,7 @@ action:
             value_template: "{{ state_attr(weather_service, 'temperature') > outdoor_temp }}"
         sequence:
           - delay:
-              minutes: "{{ range(0, 1 ) | random }}"
+              minutes: "{{ range(0, 10 ) | random }}"
           - data_template:
               entity_id: "{{ cover_e }}"
             service: cover.close_cover
@@ -125,6 +125,17 @@ action:
               entity_id: "{{ var_e }}"
               value: 1
             service: var.set
+          - condition: template
+            value_template: "{{ var_e == 'var.cover_wozi_klavier' }}"
+            sequence:
+            - data_template:
+              entity_id: "{{ cover_e }}"
+              service: cover.open_cover
+            - delay:
+              seconds: 1
+            - data_template:
+              entity_id: "{{ cover_e }}"
+              service: cover.stop_cover
 
       ##########################################################
       # open cover
@@ -148,8 +159,10 @@ action:
           - data_template:
               entity_id: "{{ cover_e }}"
             service: cover.open_cover
+          - delay:
+              seconds: !input "close_time"
           - condition: template
-            value_template: "{{ states(cover_e) == 'open' }}"
+            value_template: "{{ states(cover_e) == 'open' }}"            
           - data:
               entity_id: "{{ var_e }}"
               value: 0
