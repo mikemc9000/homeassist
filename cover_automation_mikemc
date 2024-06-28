@@ -98,7 +98,7 @@ action:
               - condition: template
                 value_template: "{{ states(weather_service) == 'partlycloudy' }}"
               - condition: template
-                value_template: "{{ states(weather_service) == 'sunny' }}"
+                value_template: "{{ states(weather_service) == 'rainy' }}"
           - condition: template
             value_template: "{{ states(var_e) != '1' }}"
           - condition: template
