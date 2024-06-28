@@ -2,7 +2,6 @@ blueprint:
   name: sun protection mikemc
   description: close cover when sun is shining and open when stops
   domain: automation
-  source_url: https://github.com/mikemc9000/homeassist/edit/main/cover_automation_mikemc
   input:
     cover_entity:
       name: cover
