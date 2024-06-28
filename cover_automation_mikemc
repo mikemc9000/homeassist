@@ -117,14 +117,14 @@ action:
               entity_id: "{{ cover_e }}"
             service: cover.stop_cover
           - condition: template
-            value_template: "{{ states(cover_e) == 'closed' }}"
+            value_template: "{{ states(cover_e) == 'closed' }}"          
+          - service: persistent_notification.create
+            data:
+              message: "mikemc Variable var_e: {{ var_e }}"
           - data:
               entity_id: "{{ var_e }}"
               value: 1
             service: var.set
-          - service: persistent_notification.create
-            data:
-              message: "mikemc Variable var_e: {{ var_e }}"
 
       ##########################################################
       # open cover
